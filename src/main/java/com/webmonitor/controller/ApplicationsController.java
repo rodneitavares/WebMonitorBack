@@ -116,7 +116,21 @@ public class ApplicationsController {
 			JdbcTemplate jdbcTemplate = new JdbcTemplate(ExternalDataSource.getDataSource(myApp.getDbServer(),
 					myApp.getDbName(), myApp.getDbUser(), myApp.getDbPsw()));
 
-			String sqlStatement = "select * from lastJobDateStatus";
+			String sqlStatement = "select " + 
+					"	top 1" + 
+					"	msdb.dbo.Agent_DateTime(jh.run_date,jh.run_time) lastJobRun,	" + 
+					"	jh.run_status as jobStatus," + 
+					"	(select Date_Journ from BWS_Dates) as lastDataUpdate," + 
+					"	(select Date_Cube from BWS_Dates) as lastCubeUpdate " + 
+					"from  " + 
+					"	msdb..sysjobs jb " + 
+					"inner join " + 
+					"	msdb..sysjobhistory jh " + 
+					"	on jh.job_id = jb.job_id " + 
+					"where " + 
+					"	name = '"+myApp.getExtractionJobName().trim()+"' " + 
+					"order by  " + 
+					"	msdb.dbo.Agent_DateTime(jh.run_date,jh.run_time) desc";
 
 			@SuppressWarnings("unused")
 			String result = jdbcTemplate.query(sqlStatement, rs -> {
