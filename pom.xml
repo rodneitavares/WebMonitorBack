@@ -14,7 +14,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>WebMonitor</name>
 	<description>Web Monitor Application</description>
-	
+
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
@@ -76,6 +76,13 @@
 			<artifactId>mssql-jdbc</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
+			<version>5.0.4</version>
+		</dependency>
+
 		<!-- My dependencies End -->
 
 	</dependencies>

@@ -1,11 +1,21 @@
 package com.webmonitor;
 
+import java.io.IOException;
+import java.util.Date;
+
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -21,7 +31,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RestController
 @EnableAutoConfiguration
 public class WebMonitor implements WebMvcConfigurer {
-
+	
 	public static void main(String[] args) {
 		SpringApplication.run(WebMonitor.class, args);
 		
@@ -29,6 +39,21 @@ public class WebMonitor implements WebMvcConfigurer {
 //		System.out.println("Encrypted: " + myPsw);					
 	}
 		
+	@Scheduled(cron = "0 */5 * * * MON-FRI")
+	void statusRefresher() throws InterruptedException, IOException {
+		
+		try (CloseableHttpClient client = HttpClients.createDefault()) {
+
+			HttpGet request = new HttpGet("http://localhost:8084/WebMonitor/applications/getLastUpdates");
+			try {
+				client.execute(request);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}					   
+		}
+	}
+	
+	
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		
@@ -41,5 +66,11 @@ public class WebMonitor implements WebMvcConfigurer {
 		.allowedOrigins("*");
 		
 		}
+}
 
+@Configuration
+@EnableScheduling
+@ConditionalOnProperty(name = "scheduling.enabled", matchIfMissing = true)
+class SchedulingConfiguration {
+	
 }
