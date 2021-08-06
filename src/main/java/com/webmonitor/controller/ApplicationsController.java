@@ -85,6 +85,7 @@ public class ApplicationsController {
 				appToUpdate.setJobStatus(jbStatus.getJobStatus());
 				appToUpdate.setLastJobStart(jbStatus.getLastJobRun());
 				appToUpdate.setLastCubeUpdate(jbStatus.getLastCubeUpdate());
+				appToUpdate.setCurrentPeriod(jbStatus.getLastMonthlyClosure());
 
 				System.out.println(jbStatus);
 				applicationRepository.save(appToUpdate);
@@ -107,6 +108,7 @@ public class ApplicationsController {
 		return "Application deleted";
 	}
 
+	@SuppressWarnings("unused")
 	private JobStatus getLDU(Applications myApp) {
 		
 		JobStatus jobStatus = new JobStatus();
@@ -121,7 +123,8 @@ public class ApplicationsController {
 					"	msdb.dbo.Agent_DateTime(jh.run_date,jh.run_time) lastJobRun,	" + 
 					"	jh.run_status as jobStatus," + 
 					"	(select Date_Journ from BWS_Dates) as lastDataUpdate," + 
-					"	(select Date_Cube from BWS_Dates) as lastCubeUpdate " + 
+					"	(select Date_Cube from BWS_Dates) as lastCubeUpdate, " +
+					"  (select cast(cast(Periode as int) as char(8)) from BWS_Dates) as lastMontlhyClosure " +
 					"from  " + 
 					"	msdb..sysjobs jb " + 
 					"inner join " + 
@@ -143,6 +146,7 @@ public class ApplicationsController {
 					}
 					
 					jobStatus.setJobStatus(rs.getString("jobStatus"));
+					jobStatus.setLastMonthlyClosure(rs.getString("lastMontlhyClosure"));
 
 					try {
 						jobStatus.setLastDataUpdate(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(rs.getString("lastDataUpdate")));
