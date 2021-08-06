@@ -9,12 +9,12 @@
 		<version>2.3.0.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.myfinances</groupId>
-	<artifactId>MyFinances</artifactId>
+	<groupId>com.webmonitor</groupId>
+	<artifactId>WebMonitor</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>MyFinances</name>
-	<description>Personal finances</description>
-
+	<name>WebMonitor</name>
+	<description>Web Monitor Application</description>
+	
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>

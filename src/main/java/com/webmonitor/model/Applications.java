@@ -319,5 +319,17 @@ public class Applications implements Serializable {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "Applications [id=" + id + ", name=" + name + ", url=" + url + ", version=" + version + ", jobStatus="
+				+ jobStatus + ", countryCode=" + countryCode + ", serverHost=" + serverHost + ", extractionJobName="
+				+ extractionJobName + ", currentPeriod=" + currentPeriod + ", transferAlert=" + transferAlert
+				+ ", dbServer=" + dbServer + ", dbName=" + dbName + ", dbUser=" + dbUser + ", dbPsw=" + dbPsw
+				+ ", lastDataUpdate=" + lastDataUpdate + ", lastCubeUpdate=" + lastCubeUpdate + ", lastJobStart="
+				+ lastJobStart + "]";
+	}
+	
+	
 	
 }
