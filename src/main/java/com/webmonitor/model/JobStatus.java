@@ -14,6 +14,7 @@ public class JobStatus {
 	Date lastJobRun;
 	
 	String jobStatus;
+	String lastMonthlyClosure;
 	
 	@JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm:ss", timezone="Europe/Dublin")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -37,6 +38,14 @@ public class JobStatus {
 
 	public void setJobStatus(String jobStatus) {
 		this.jobStatus = jobStatus;
+	}
+
+	public String getLastMonthlyClosure() {
+		return lastMonthlyClosure;
+	}
+
+	public void setLastMonthlyClosure(String lastMonthlyClosure) {
+		this.lastMonthlyClosure = lastMonthlyClosure;
 	}
 
 	public Date getLastDataUpdate() {
@@ -63,6 +72,7 @@ public class JobStatus {
 		result = prime * result + ((lastCubeUpdate == null) ? 0 : lastCubeUpdate.hashCode());
 		result = prime * result + ((lastDataUpdate == null) ? 0 : lastDataUpdate.hashCode());
 		result = prime * result + ((lastJobRun == null) ? 0 : lastJobRun.hashCode());
+		result = prime * result + ((lastMonthlyClosure == null) ? 0 : lastMonthlyClosure.hashCode());
 		return result;
 	}
 
@@ -95,13 +105,19 @@ public class JobStatus {
 				return false;
 		} else if (!lastJobRun.equals(other.lastJobRun))
 			return false;
+		if (lastMonthlyClosure == null) {
+			if (other.lastMonthlyClosure != null)
+				return false;
+		} else if (!lastMonthlyClosure.equals(other.lastMonthlyClosure))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "JobStatus [lastJobRun=" + lastJobRun + ", jobStatus=" + jobStatus + ", lastDataUpdate=" + lastDataUpdate
-				+ ", lastCubeUpdate=" + lastCubeUpdate + "]";
+		return "JobStatus [lastJobRun=" + lastJobRun + ", jobStatus=" + jobStatus + ", lastMonthlyClosure="
+				+ lastMonthlyClosure + ", lastDataUpdate=" + lastDataUpdate + ", lastCubeUpdate=" + lastCubeUpdate
+				+ "]";
 	}
 	
 }
