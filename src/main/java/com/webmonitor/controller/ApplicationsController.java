@@ -2,6 +2,7 @@ package com.webmonitor.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,7 @@ public class ApplicationsController {
 	public ResponseEntity<List<Applications>> listApps() {
 
 		List<Applications> list = applicationRepository.findAll();
+		Collections.sort(list);
 
 		return new ResponseEntity<List<Applications>>(list, HttpStatus.OK);
 	}
@@ -108,7 +110,6 @@ public class ApplicationsController {
 		return "Application deleted";
 	}
 
-	@SuppressWarnings("unused")
 	private JobStatus getLDU(Applications myApp) {
 		
 		JobStatus jobStatus = new JobStatus();
@@ -120,16 +121,17 @@ public class ApplicationsController {
 
 			String sqlStatement = "select " + 
 					"	top 1" + 
-					"	msdb.dbo.Agent_DateTime(jh.run_date,jh.run_time) lastJobRun,	" + 
+					"	Cast(msdb.dbo.Agent_DateTime(jh.run_date,jh.run_time) as smalldatetime) lastJobRun,	" + 
 					"	jh.run_status as jobStatus," + 
-					"	(select Date_Journ from BWS_Dates) as lastDataUpdate," + 
-					"	(select Date_Cube from BWS_Dates) as lastCubeUpdate, " +
+					"	(select Cast(Date_Journ as smalldatetime) from BWS_Dates) as lastDataUpdate," + 
+					"	(select Cast(Date_Cube  as smalldatetime) from BWS_Dates) as lastCubeUpdate, " +
 					"  (select cast(cast(Periode as int) as char(8)) from BWS_Dates) as lastMontlhyClosure " +
 					"from  " + 
 					"	msdb..sysjobs jb " + 
 					"inner join " + 
 					"	msdb..sysjobhistory jh " + 
 					"	on jh.job_id = jb.job_id " + 
+					"   and jh.step_id = jb.start_step_id " +
 					"where " + 
 					"	name = '"+myApp.getExtractionJobName().trim()+"' " + 
 					"order by  " + 
@@ -169,34 +171,4 @@ public class ApplicationsController {
 
 		return jobStatus;
 	}
-		
-	private Date getLastDataUpdate(Applications myApp) {
-
-		Date lastUpdate = null;
-
-		if (myApp.getDbServer() != "" && myApp.getDbServer() != null) {
-
-			JdbcTemplate jdbcTemplate = new JdbcTemplate(ExternalDataSource.getDataSource(myApp.getDbServer(),
-					myApp.getDbName(), myApp.getDbUser(), myApp.getDbPsw()));
-
-			String sqlStatement = "select top 1 * from dataRefresh";
-
-			String result = jdbcTemplate.query(sqlStatement, rs -> {
-				if (rs.next()) {
-					return rs.getString("lastRefresh");
-				}
-				return "";
-			});
-
-			try {
-				lastUpdate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(result);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		}
-
-		return lastUpdate;
-
-	}
-
 }

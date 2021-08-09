@@ -53,7 +53,12 @@ public class ExternalDataSource {
 		builder.password(_psw);
 		builder.driverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 
-		dataSource = builder.build();
+		try {			
+			dataSource = builder.build();
+		} catch (Exception e) {
+			System.out.println("Failed to connect on " + server);
+			System.out.println(e.getMessage());
+		}
 
 		return dataSource;
 	}

@@ -2,6 +2,7 @@ package com.webmonitor;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Timer;
 
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -39,7 +40,7 @@ public class WebMonitor implements WebMvcConfigurer {
 //		System.out.println("Encrypted: " + myPsw);					
 	}
 		
-	@Scheduled(cron = "0 */5 * * * MON-FRI")
+	@Scheduled(cron = "0 */1 * * * MON-FRI" )
 	void statusRefresher() throws InterruptedException, IOException {
 		
 		try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -47,6 +48,11 @@ public class WebMonitor implements WebMvcConfigurer {
 			HttpGet request = new HttpGet("http://localhost:8084/WebMonitor/applications/getLastUpdates");
 			try {
 				client.execute(request);
+//				System.out.println("status updated " + new Date());
+				Thread.sleep(10000);
+				request.abort();
+				client.close();
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}					   

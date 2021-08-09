@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @SequenceGenerator(name = "seq_appno", sequenceName = "seq_appno", allocationSize = 1, initialValue = 1)
-public class Applications implements Serializable {
+public class Applications implements Serializable, Comparable<Applications> {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -328,6 +328,11 @@ public class Applications implements Serializable {
 				+ ", dbServer=" + dbServer + ", dbName=" + dbName + ", dbUser=" + dbUser + ", dbPsw=" + dbPsw
 				+ ", lastDataUpdate=" + lastDataUpdate + ", lastCubeUpdate=" + lastCubeUpdate + ", lastJobStart="
 				+ lastJobStart + "]";
+	}
+
+	@Override
+	public int compareTo(Applications o) {
+		return this.getName().compareTo(o.getName());
 	}
 	
 	
