@@ -3,7 +3,6 @@ package com.webmonitor.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,7 +85,6 @@ public class ApplicationsController {
 			Applications appToUpdate = (Applications) listOfApps.toArray()[i];
 			
 			JobStatus jbStatus = getLDU(appToUpdate);
-//			JobStatus jbStatus = ((GetRemoteData) this.service).getLDU(appToUpdate);
 					
 			if (jbStatus.getLastDataUpdate() != null) {
 
@@ -100,8 +98,7 @@ public class ApplicationsController {
 			}
 			
 			jbStatus = null;
-			appToUpdate = null;
-			System.out.println("Update " + new Date());
+			appToUpdate = null;			
 
 		}
 	}
