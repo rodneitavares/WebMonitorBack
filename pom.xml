@@ -82,7 +82,6 @@
 			<artifactId>httpclient5</artifactId>
 			<version>5.0.4</version>
 		</dependency>
-
 		<!-- My dependencies End -->
 
 	</dependencies>

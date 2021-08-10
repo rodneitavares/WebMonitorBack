@@ -1,8 +1,6 @@
 package com.webmonitor;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.Timer;
 
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -24,54 +22,48 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
-@EntityScan(basePackages = {"com.webmonitor.model"})
-@ComponentScan(basePackages = {"com.*"})
-@EnableJpaRepositories(basePackages = {"com.webmonitor.repository"})
+@EntityScan(basePackages = { "com.webmonitor.model" })
+@ComponentScan(basePackages = { "com.*" })
+@EnableJpaRepositories(basePackages = { "com.webmonitor.repository" })
 @EnableTransactionManagement
 @EnableWebMvc
 @RestController
 @EnableAutoConfiguration
 public class WebMonitor implements WebMvcConfigurer {
-	
+
 	public static void main(String[] args) {
 		SpringApplication.run(WebMonitor.class, args);
-		
-//		String myPsw = new BCryptPasswordEncoder().encode("1234");
+
+//		String myPsw = new BCryptPasswordEncoder().encode("Adp921alf@");
 //		System.out.println("Encrypted: " + myPsw);					
 	}
-		
-	@Scheduled(cron = "0 */1 * * * MON-FRI" )
-	void statusRefresher() throws InterruptedException, IOException {
-		
+
+	@Scheduled(cron = "0 */1 * * * MON-FRI")
+	void statusRefresher() throws InterruptedException, IOException {		
+			
 		try (CloseableHttpClient client = HttpClients.createDefault()) {
 
 			HttpGet request = new HttpGet("http://localhost:8084/WebMonitor/applications/getLastUpdates");
 			try {
 				client.execute(request);
-//				System.out.println("status updated " + new Date());
 				Thread.sleep(10000);
 				request.abort();
 				client.close();
-				
+
 			} catch (IOException e) {
 				e.printStackTrace();
-			}					   
+			}
 		}
 	}
-	
-	
+
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
-		
-		registry.addMapping("/applications/**")
-			.allowedMethods("*")
-			.allowedOrigins("*");
-		
-		registry.addMapping("/appSettings/**")
-		.allowedMethods("*")
-		.allowedOrigins("*");
-		
-		}
+
+		registry.addMapping("/applications/**").allowedMethods("*").allowedOrigins("*");
+
+		registry.addMapping("/appSettings/**").allowedMethods("*").allowedOrigins("*");
+
+	}
 }
 
 @Configuration

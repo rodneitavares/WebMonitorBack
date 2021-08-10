@@ -33,6 +33,14 @@ public class ApplicationsController {
 
 	@Autowired
 	private ApplicationsRepository applicationRepository;
+	
+//	private final Service service;
+//	
+//	@Autowired
+//	protected ApplicationsController(GetRemoteData getRemoteData) {
+//		this.service = (Service) getRemoteData;
+//		
+//	}
 
 	@GetMapping(value = "/", produces = "application/json")
 	public ResponseEntity<List<Applications>> listApps() {
@@ -76,11 +84,10 @@ public class ApplicationsController {
 		for (int i = 0; i < (listOfApps.toArray()).length; i++) {
 
 			Applications appToUpdate = (Applications) listOfApps.toArray()[i];
-
-			//Date lastUpdate = getLastDataUpdate(appToUpdate);			;
 			
 			JobStatus jbStatus = getLDU(appToUpdate);
-			
+//			JobStatus jbStatus = ((GetRemoteData) this.service).getLDU(appToUpdate);
+					
 			if (jbStatus.getLastDataUpdate() != null) {
 
 				appToUpdate.setLastDataUpdate(jbStatus.getLastDataUpdate());
@@ -89,9 +96,12 @@ public class ApplicationsController {
 				appToUpdate.setLastCubeUpdate(jbStatus.getLastCubeUpdate());
 				appToUpdate.setCurrentPeriod(jbStatus.getLastMonthlyClosure());
 
-				System.out.println(jbStatus);
 				applicationRepository.save(appToUpdate);
 			}
+			
+			jbStatus = null;
+			appToUpdate = null;
+			System.out.println("Update " + new Date());
 
 		}
 	}
