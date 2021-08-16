@@ -3,6 +3,7 @@ package com.webmonitor.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.webmonitor.component.LastDataRefresh;
 import com.webmonitor.model.Applications;
 import com.webmonitor.model.JobStatus;
 import com.webmonitor.repository.ApplicationsRepository;
@@ -33,14 +35,9 @@ public class ApplicationsController {
 	@Autowired
 	private ApplicationsRepository applicationRepository;
 	
-//	private final Service service;
-//	
-//	@Autowired
-//	protected ApplicationsController(GetRemoteData getRemoteData) {
-//		this.service = (Service) getRemoteData;
-//		
-//	}
-
+	@Autowired
+	LastDataRefresh lastDataRefresh;
+	
 	@GetMapping(value = "/", produces = "application/json")
 	public ResponseEntity<List<Applications>> listApps() {
 
@@ -95,6 +92,8 @@ public class ApplicationsController {
 				appToUpdate.setCurrentPeriod(jbStatus.getLastMonthlyClosure());
 
 				applicationRepository.save(appToUpdate);
+				lastDataRefresh.setLastDataRefresh(new SimpleDateFormat("dd-MM-yyyy hh:mm:ss aa").format(new Date()));
+				
 			}
 			
 			jbStatus = null;
@@ -103,6 +102,13 @@ public class ApplicationsController {
 		}
 	}
 
+	@GetMapping(value = "/getLastDataRefresh", produces = "text/plain")
+	public ResponseEntity<String> getLastDataRefresh() throws ParseException {
+								
+		return new ResponseEntity<String>(lastDataRefresh.getLastDataRefresh(), HttpStatus.OK);
+		
+	}
+	
 	@DeleteMapping(value = "del/{id}", produces = "application/json")
 	public String delApplicationsById(@PathVariable Long id) {
 
