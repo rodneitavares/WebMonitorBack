@@ -39,7 +39,7 @@ public class WebMonitor implements WebMvcConfigurer {
 //		System.out.println("Encrypted: " + myPsw);					
 	}
 
-	@Scheduled(cron = "0 */5 * * * MON-FRI")
+	@Scheduled(cron = "0 */20 * * * MON-FRI")
 	void statusRefresher() throws InterruptedException, IOException {		
 			
 		CloseableHttpClient httpClient = HttpClients.createDefault();
