@@ -15,6 +15,8 @@ public class JobStatus {
 	
 	String jobStatus;
 	String lastMonthlyClosure;
+	String currentExecutionStatus;
+	String lastRunOutcome;
 	
 	@JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm:ss", timezone="Europe/Dublin")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -48,6 +50,22 @@ public class JobStatus {
 		this.lastMonthlyClosure = lastMonthlyClosure;
 	}
 
+	public String getCurrentExecutionStatus() {
+		return currentExecutionStatus;
+	}
+
+	public void setCurrentExecutionStatus(String currentExecutionStatus) {
+		this.currentExecutionStatus = currentExecutionStatus;
+	}
+
+	public String getLastRunOutcome() {
+		return lastRunOutcome;
+	}
+
+	public void setLastRunOutcome(String lastRunOutcome) {
+		this.lastRunOutcome = lastRunOutcome;
+	}
+
 	public Date getLastDataUpdate() {
 		return lastDataUpdate;
 	}
@@ -68,11 +86,13 @@ public class JobStatus {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((currentExecutionStatus == null) ? 0 : currentExecutionStatus.hashCode());
 		result = prime * result + ((jobStatus == null) ? 0 : jobStatus.hashCode());
 		result = prime * result + ((lastCubeUpdate == null) ? 0 : lastCubeUpdate.hashCode());
 		result = prime * result + ((lastDataUpdate == null) ? 0 : lastDataUpdate.hashCode());
 		result = prime * result + ((lastJobRun == null) ? 0 : lastJobRun.hashCode());
 		result = prime * result + ((lastMonthlyClosure == null) ? 0 : lastMonthlyClosure.hashCode());
+		result = prime * result + ((lastRunOutcome == null) ? 0 : lastRunOutcome.hashCode());
 		return result;
 	}
 
@@ -85,6 +105,11 @@ public class JobStatus {
 		if (getClass() != obj.getClass())
 			return false;
 		JobStatus other = (JobStatus) obj;
+		if (currentExecutionStatus == null) {
+			if (other.currentExecutionStatus != null)
+				return false;
+		} else if (!currentExecutionStatus.equals(other.currentExecutionStatus))
+			return false;
 		if (jobStatus == null) {
 			if (other.jobStatus != null)
 				return false;
@@ -110,14 +135,20 @@ public class JobStatus {
 				return false;
 		} else if (!lastMonthlyClosure.equals(other.lastMonthlyClosure))
 			return false;
+		if (lastRunOutcome == null) {
+			if (other.lastRunOutcome != null)
+				return false;
+		} else if (!lastRunOutcome.equals(other.lastRunOutcome))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
 		return "JobStatus [lastJobRun=" + lastJobRun + ", jobStatus=" + jobStatus + ", lastMonthlyClosure="
-				+ lastMonthlyClosure + ", lastDataUpdate=" + lastDataUpdate + ", lastCubeUpdate=" + lastCubeUpdate
-				+ "]";
+				+ lastMonthlyClosure + ", currentExecutionStatus=" + currentExecutionStatus + ", lastRunOutcome="
+				+ lastRunOutcome + ", lastDataUpdate=" + lastDataUpdate + ", lastCubeUpdate=" + lastCubeUpdate + "]";
 	}
+
 	
 }

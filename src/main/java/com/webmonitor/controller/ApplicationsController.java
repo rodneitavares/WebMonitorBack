@@ -132,10 +132,26 @@ public class ApplicationsController {
 			JdbcTemplate jdbcTemplate = new JdbcTemplate(ExternalDataSource.getDataSource(myApp.getDbServer(),
 					myApp.getDbName(), myApp.getDbUser(), myApp.getDbPsw()));
 
-			String sqlStatement = "select " + 
+			String sqlStatement = "EXEC msdb..sp_help_job NULL, '"+myApp.getExtractionJobName().trim()+"', 'JOB'";
+			
+			jdbcTemplate.query(sqlStatement, rs -> {
+				if (rs.next()) {
+					
+					jobStatus.setCurrentExecutionStatus(rs.getString("current_execution_status"));
+					jobStatus.setLastRunOutcome(rs.getString("last_run_outcome"));
+					
+					return "ok";
+				}
+				return "";
+			});								
+			
+			sqlStatement = "select " + 
 					"	top 1" + 
 					"	Cast(msdb.dbo.Agent_DateTime(jh.run_date,jh.run_time) as smalldatetime) lastJobRun,	" + 
-					"	jh.run_status as jobStatus," + 
+					"	Case " + 
+					"		When ja.start_execution_date Is Not Null And ja.stop_execution_date Is Null Then 3 " + 
+					"		else jh.run_status " + 
+					"	end as jobStatus, "+
 					"	(select Cast(Date_Journ as smalldatetime) from BWS_Dates) as lastDataUpdate," + 
 					"	(select Cast(Date_Cube  as smalldatetime) from BWS_Dates) as lastCubeUpdate, " +
 					"  (select cast(cast(Periode as int) as char(8)) from BWS_Dates) as lastMontlhyClosure " +
@@ -145,14 +161,48 @@ public class ApplicationsController {
 					"	msdb..sysjobhistory jh " + 
 					"	on jh.job_id = jb.job_id " + 
 					"   and jh.step_id = jb.start_step_id " +
+					"left join " + 
+					"	msdb.dbo.sysjobactivity ja " + 
+					"	ON ja.job_id = jb.job_id	 " + 
+					"	and Convert(date, start_execution_date, 120) = (SELECT  " + 
+					"														Max(Convert(date, start_execution_date, 120)) " + 
+					"													FROM  " + 
+					"														msdb.dbo.sysjobactivity AS sja  " + 
+					"													INNER JOIN  " + 
+					"														msdb.dbo.sysjobs AS sj  " + 
+					"														ON sja.job_id = sj.job_id  " + 
+					"													WHERE  " + 
+					"														sja.start_execution_date IS NOT NULL    " + 
+					"														AND sja.stop_execution_date IS NULL " + 
+					"														And sj.name = '"+myApp.getExtractionJobName().trim()+"') " +
 					"where " + 
 					"	name = '"+myApp.getExtractionJobName().trim()+"' " + 
 					"order by  " + 
 					"	msdb.dbo.Agent_DateTime(jh.run_date,jh.run_time) desc";
-
-			@SuppressWarnings("unused")
-			String result = jdbcTemplate.query(sqlStatement, rs -> {
+			
+			
+			jdbcTemplate.query(sqlStatement, rs -> {
 				if (rs.next()) {
+					
+//					last_run_outcome	int	Outcome of the job the last time it ran:
+//
+//						0 = Failed
+//						1 = Succeeded
+//						3 = Canceled
+//						5 = Unknown
+//
+//						current_execution_status	int	Current execution status:
+//
+//						1 = Executing
+//						2 = Waiting For Thread
+//						3 = Between Retries
+//						4 = Idle
+//						5 = Suspended
+//						6 = Obsolete
+//						7 = PerformingCompletionActions
+
+					String currentStatus = jobStatus.getCurrentExecutionStatus();
+					String lastOutcome = jobStatus.getLastRunOutcome();
 					
 					try {
 						jobStatus.setLastJobRun(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(rs.getString("lastJobRun")));
@@ -160,7 +210,16 @@ public class ApplicationsController {
 						e.printStackTrace();
 					}
 					
-					jobStatus.setJobStatus(rs.getString("jobStatus"));
+					if (currentStatus.equalsIgnoreCase("4")) {
+						if (lastOutcome.equalsIgnoreCase("3")) {
+							jobStatus.setJobStatus("0");
+						} else {
+						jobStatus.setJobStatus(jobStatus.getLastRunOutcome());
+						}
+					} else if (currentStatus.equalsIgnoreCase("1")) {
+						jobStatus.setJobStatus("3");
+					}
+					
 					jobStatus.setLastMonthlyClosure(rs.getString("lastMontlhyClosure"));
 
 					try {
@@ -175,6 +234,7 @@ public class ApplicationsController {
 						e.printStackTrace();
 					}
 					
+					System.out.println(jobStatus);
 					return "ok";
 				}
 				return "";
